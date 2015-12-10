@@ -113,7 +113,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
           tempMu2 <- tempMu
           for(i in 1:nrow(tempMu))
           {
-               temp[temp2$LDClass==tempMu$LDClass[i],]$LDClass <- i
+               temp[temp2$LDClass==tempMu$LDClass[i],'LDClass'] <- i
                tempMu2$LDClass[i] <- i
           }
 
