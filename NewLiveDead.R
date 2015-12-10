@@ -1,10 +1,10 @@
+# Load necessary libraries
+library(foreign)
+library(data.table)
+library(EMCluster)
+
 analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, locationDimension='Location')
 {
-     # Load necessary libraries
-     library(foreign)
-     library(data.table)
-     library(EMCluster)
-
      # Define some helper functions
      plotHist <- function(data, LDClass, thresh, jexFolder, x, y, loc, prefix)
      {
