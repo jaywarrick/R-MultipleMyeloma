@@ -1,7 +1,7 @@
 # Load necessary libraries
-library(foreign)
-library(data.table)
-library(EMCluster)
+library('foreign')
+library('data.table')
+library('EMCluster')
 
 analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, locationDimension='Location')
 {
