@@ -3,7 +3,7 @@ library('foreign')
 library('data.table')
 library('EMCluster')
 
-analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, locationDimension='Location')
+analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location')
 {
      # Define some helper functions
      plotHist <- function(data, LDClass, thresh, jexFolder, x, y, loc, prefix)
@@ -140,7 +140,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      duh <- data.frame(duh)
 
      #Calculate the live/dead signal ratio
-     duh$ratio <- (duh$G + 101) / (duh$R+101) # this is to avoid division by 0 and assumes the background correction step adds back 100 intensity units to images.
+     duh$ratio <- (duh$G+101) / (duh$R+101) # this is to avoid division by 0 and assumes the background correction step adds back 100 intensity units to images.
      duh$logRatio <- log(duh$ratio)
 
      # Assign cells as either live (1) or dead (0)
@@ -148,7 +148,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      duh$LD[duh$logRatio < logRatioThreshold] <- 0
 
      # Attempt EM Clustering to determine live / dead
-     results <- assignToClusters(duh$logRatio, nClusters=nClusters)
+     results <- assignToClusters(duh$logRatio, nClusters=nClusters, rndSeed=seed)
      duh$LDClass <- results$data$LDClass
 
      # Plot the data by array location and

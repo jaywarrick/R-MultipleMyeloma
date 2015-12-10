@@ -24,3 +24,9 @@ hist(log(sample(exp(x),n/2)))
 results <- analyzeLiveDead(logRatioThreshold=1.2, nClusters=2, locationDimension="", compiledTablePath='/Users/jaywarrick/Desktop/A Sandbox/madeUpData.arff', jexFolder='/Users/jaywarrick/Desktop/A Sandbox')
 
 # logRatio = log(G/R) = x -> G/R = exp(x) -> G = R*exp(x) -> R = G/exp(x)
+
+jexTempRFolder <- '/Users/jaywarrick/Documents/JEX/Example Database/temp/RScriptTempFolder'
+library('foreign')
+sourceGitHubFile('jaywarrick','R-General','master','.Rprofile')
+sourceGitHubFile('jaywarrick','R-MultipleMyeloma','master','NewLiveDead.R')
+results <- analyzeLiveDead(compiledTablePath='/Users/jaywarrick/Documents/JEX/Example Database/Example Dataset/Cell_x0_y0/File-FileFromLoren/x0_y0.arff', jexFolder=jexTempRFolder, logRatioThreshold=0.0, nClusters=3, locationDimension='Location')
