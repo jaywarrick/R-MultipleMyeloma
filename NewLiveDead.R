@@ -157,18 +157,20 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      if(locationDimension != '')
      {
           temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
-          temp1 <- rbind(temp1, duh[ , plotHist(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)])
+          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
      }
      else
      {
           temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-          temp1 <- rbind(temp1, duh[ , plotHist(data=logRatio, jexFolder=jexFolder, thresh=logRatioThreshold, LDClass=LDClass, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')])
+          temp1b <- duh[ , plotHist(data=logRatio, jexFolder=jexFolder, thresh=logRatioThreshold, LDClass=LDClass, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
      }
      temp2 <- duh[ , plotHistAll(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
-     temp2 <- rbind(temp2, duh[ , plotHistAll(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ])
+     temp2b <- duh[ , plotHistAll(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
 
-     imageList1 <- as.vector(temp1$V1)
-     imageList2 <- as.vector(temp2)
+     indRatioHistograms <- as.vector(temp1$V1)
+     indLogRatioHistograms <- as.vector(temp1b$V1)
+     overallRatioHistogram <- as.vector(temp2)
+     overallLogRatioHistogram <- as.vector(temp2b)
 
      summaryTable <- data.frame()
      summaryTable <- duh[ , list(LDRatio_Threshold=sum(LD)/length(LD), LDRatio_Cluster=sum(LDClass)/length(LDClass)), by=.(Array.X,Array.Y,Experiment,Location)]
@@ -176,9 +178,9 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      write.csv(x=summaryTable,file=path1)
      path2 <- file.path(jexFolder,'SingleCellTable.csv')
      write.csv(x=duh,file=path2)
-     fileList1 <- c(path1)
-     fileList2 <- c(path2)
-     return(list(image1=imageList1, image2=imageList2, file1=fileList1, file2=fileList2, ret=duh, clusterResults=results))
+     summaryTable <- c(path1)
+     singleCellTable <- c(path2)
+     return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
 }
 
 # something potentially good to know for this file blah<-'b', blah2<-'a', temp[,mean(unlist(.SD[,'a',with=FALSE])),by=c(blah)]
