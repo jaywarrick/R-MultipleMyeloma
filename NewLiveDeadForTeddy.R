@@ -81,14 +81,21 @@ assignToClusters <- function(data, nClusters=2, rndSeed=1234)
 
 # Attempt EM Clustering to determine live / dead
 
-
 ##Change this section for every different file you use
 bigTable <- read.csv('/Volumes/TeddyJEX/2015-12-08 MM Memory/MyExpt_Cells.csv')
 bigTable$ratio <- bigTable$Intensity_MeanIntensity_Green/bigTable$Intensity_MeanIntensity_Red 
-bigTable$group <- (bigTable$ImageNumber-1)%/%16
-bigTable$group <- -1
+
+
+#Assign drug concentrations, where each 4 images goes 100, 10, 1, 0
+bigTable$drugConcentration <- -1
+bigTable$drugConcentration <- (bigTable$ImageNumber-1)%%4
+bigTable$drugConcentration[bigTable$drugConcentration == 0] <- 100
+bigTable$drugConcentration[bigTable$drugConcentration == 1] <- 10
+bigTable$drugConcentration[bigTable$drugConcentration == 2] <- 1
+bigTable$drugConcentration[bigTable$drugConcentration == 3] <- 0
 
 #These are your days, they group by staining
+bigTable$group <- -1
 bigTable$group[bigTable$ImageNumber %in% c(1:16,49:56)] <- 1
 bigTable$group[bigTable$ImageNumber %in% c(17:32)] <- 2
 bigTable$group[bigTable$ImageNumber %in% c(33:48,57:80)] <- 3
@@ -111,6 +118,7 @@ for(i in unique(bigTable$group))
 }
 
 
+write.csv(x = bigTable , file = '/Volumes/TeddyJEX/2015-12-08 MM Memory/MyExpt_Cells.csv') 
 
 ### Trial codes
 
