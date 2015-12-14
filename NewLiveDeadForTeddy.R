@@ -4,11 +4,11 @@ library('data.table')
 library('EMCluster')
 
 
-plotHist <- function(data, LDClass, xlab='log(Ratio)', thresh=0)
+plotHist <- function(data, LDClass, main=-1, xlab='log(Ratio)', thresh=0)
 {
 	add <- FALSE
 	col <- list(red=0, green=0, blue=0, alpha=0.5)
-	tempHist <- hist(data, breaks=20, plot=FALSE)
+	tempHist <- hist(data, breaks=40, plot=FALSE)
 	myBreaks <- tempHist$breaks
 	myLim <- max(tempHist$counts)
 	for(i in unique(LDClass))
@@ -25,7 +25,7 @@ plotHist <- function(data, LDClass, xlab='log(Ratio)', thresh=0)
 			}
 			else
 			{
-				hist(data[LDClass==i], breaks=myBreaks, xlab=xlab, col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
+				hist(data[LDClass==i], breaks=myBreaks, xlab=xlab, main=main, col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
 			}
 			add <- TRUE
 		}
@@ -37,9 +37,9 @@ assignToClusters <- function(data, nClusters=2, rndSeed=1234)
 {
 	set.seed(rndSeed)
 	yo <- data[!is.na(data)]
-	if(length(yo) > 10000)
+	if(length(yo) > 50000)
 	{
-		x <- data.frame(x=sample(yo, 10000))
+		x <- data.frame(x=sample(yo, 50000))
 	}
 	else
 	{
@@ -56,7 +56,6 @@ assignToClusters <- function(data, nClusters=2, rndSeed=1234)
 	temp <- data.frame(x=x$x, LDClass=ret$class)
 	tempMu <- data.frame(mu=as.vector(ret$Mu), LDClass=1:nrow(ret$Mu))
 	tempMu <- tempMu[order(tempMu$mu),]
-	print(tempMu)
 	temp2 <- temp
 	tempMu2 <- tempMu
 	for(i in 1:nrow(tempMu))
@@ -77,28 +76,31 @@ assignToClusters <- function(data, nClusters=2, rndSeed=1234)
 		}
 	}
 	
-	return(list(data=temp, mu=tempMu$mu, thresh=thresh, emclusterObj=ret))
+	return(list(data=temp, mu=tempMu2, thresh=thresh, emclusterObj=ret))
 }
 
-# # Read in the file
-# duh <- read.arff(compiledTablePath)
-# duh <- reorganizeFeatureTable(duh, specialNames=c(), convertToNumeric=FALSE)
-# duh <- data.frame(duh)
-# 
-# #Calculate the live/dead signal ratio
-# duh$ratio <- (duh$G+101) / (duh$R+101) # this is to avoid division by 0 and assumes the background correction step adds back 100 intensity units to images.
-# duh$logRatio <- log(duh$ratio)
-
-duh <- NULL
-duh <- data.frame(logRatio=singleImg$Ratio)
-
-# Assign cells as either live (1) or dead (0)
-threshold <- 0
-duh$LD <- 1
-duh$LD[duh$logRatio < threshold] <- 0
-
 # Attempt EM Clustering to determine live / dead
-results <- assignToClusters(duh$logRatio, nClusters=3, rndSeed=1234)
-duh$LDClass <- results$data$LDClass
-plotHist(duh$logRatio, duh$LDClass)
-ß
+
+bigTable <- read.csv('/Volumes/TeddyJEX/2015-12-08 MM Memory/MyExpt_Cells.csv')
+bigTable$ratio <- bigTable$Intensity_MeanIntensity_Green/bigTable$Intensity_MeanIntensity_Red 
+bigTable$group <- (bigTable$ImageNumber-1)%/%16
+bigTable$clusterNumber <- -1
+for(i in unique(bigTable$group))
+{
+	badI = tryCatch({
+	
+	print(i)
+	results <- assignToClusters(log(bigTable[bigTable$group == i,'ratio']), nClusters=3, rndSeed=1234)
+	bigTable$clusterNumber[bigTable$group == i] <- results$data$LDClass
+	print(results$mu)
+	plotHist(results$data$x, results$data$LDClass, main=i, xlab = 'Ratio') },
+	warning = function(w){
+		print(paste0("This is crappy: ", i))
+	}
+	)
+}
+
+### Trial codes
+
+#days <- list(1=1:16, 2=17:)
+
