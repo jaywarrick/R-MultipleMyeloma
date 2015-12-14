@@ -120,18 +120,16 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
           temp$LDClass <- temp$LDClass-1
 
           thresh <- list()
-          ret <- data.frame(x=data, LDClass=nrow(tempMu)-1)
           for(i in (nrow(tempMu)-1):1)
           {
                tempThresh <- min(temp[temp$LDClass == i,'x'])
                if(!length(tempThresh)==0)
                {
-                    thresh[i] <- tempThresh[1]
-                    ret$LDClass[ret$x < tempThresh[1]] <- i-1
+                    thresh[[i]] <- tempThresh[1]
                }
           }
 
-          return(list(data=ret, mu=tempMu$mu, thresh=thresh))
+          return(list(data=temp, mu=tempMu$mu, thresh=thresh, emclusterObj=ret))
      }
 
      # Read in the file
