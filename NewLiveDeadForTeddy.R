@@ -98,6 +98,7 @@ duh$LD <- 1
 duh$LD[duh$logRatio < threshold] <- 0
 
 # Attempt EM Clustering to determine live / dead
-results <- assignToClusters(duh$logRatio, nClusters=2, rndSeed=1234)
+results <- assignToClusters(duh$logRatio, nClusters=3, rndSeed=1234)
 duh$LDClass <- results$data$LDClass
 plotHist(duh$logRatio, duh$LDClass)
+ß
