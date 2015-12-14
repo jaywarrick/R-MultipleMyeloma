@@ -81,24 +81,36 @@ assignToClusters <- function(data, nClusters=2, rndSeed=1234)
 
 # Attempt EM Clustering to determine live / dead
 
+
+##Change this section for every different file you use
 bigTable <- read.csv('/Volumes/TeddyJEX/2015-12-08 MM Memory/MyExpt_Cells.csv')
 bigTable$ratio <- bigTable$Intensity_MeanIntensity_Green/bigTable$Intensity_MeanIntensity_Red 
 bigTable$group <- (bigTable$ImageNumber-1)%/%16
+bigTable$group <- -1
+
+#These are your days, they group by staining
+bigTable$group[bigTable$ImageNumber %in% c(1:16,49:56)] <- 1
+bigTable$group[bigTable$ImageNumber %in% c(17:32)] <- 2
+bigTable$group[bigTable$ImageNumber %in% c(33:48,57:80)] <- 3
 bigTable$clusterNumber <- -1
+
+#This part stays the same
 for(i in unique(bigTable$group))
 {
 	badI = tryCatch({
 	
 	print(i)
-	results <- assignToClusters(log(bigTable[bigTable$group == i,'ratio']), nClusters=3, rndSeed=1234)
+	results <- assignToClusters(log(bigTable[bigTable$group == i,'ratio']), nClusters=2, rndSeed=1234)
 	bigTable$clusterNumber[bigTable$group == i] <- results$data$LDClass
 	print(results$mu)
-	plotHist(results$data$x, results$data$LDClass, main=i, xlab = 'Ratio') },
+	plotHist(results$data$x, results$data$LDClass, main=i, xlab = 'Log(Ratio)') },
 	warning = function(w){
 		print(paste0("This is crappy: ", i))
 	}
 	)
 }
+
+
 
 ### Trial codes
 
