@@ -1,4 +1,5 @@
 rm(list=ls())
+library(CRImage)
 library(foreign)
 source('~/.Rprofile')
 # Also export data with "Class" column
