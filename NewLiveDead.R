@@ -112,13 +112,15 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 
           temp$LDClass <- temp$LDClass-1
 
+          temp$LDClass2 <- max(temp$LDClass)[1]
           thresh <- list()
           for(i in (nrow(tempMu)-1):1)
           {
-               tempThresh <- min(temp[temp$LDClass == i,'x'])
+               tempThresh <- min(temp[temp$LDClass == i & temp$x > tempMu$mu[i-1],'x'])
                if(!length(tempThresh)==0)
                {
                     thresh[[i]] <- tempThresh[1]
+                    temp$LDClass2[temp$x < tempThresh] <- i-1
                }
           }
 
@@ -146,16 +148,16 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      duh <- data.table(duh)
      if(locationDimension != '')
      {
-          temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
-          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
+          temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass2, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
+          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
      }
      else
      {
-          temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-          temp1b <- duh[ , plotHist(data=logRatio, jexFolder=jexFolder, thresh=logRatioThreshold, LDClass=LDClass, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
+          temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass2, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
+          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, LDClass=LDClass, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
      }
-     temp2 <- duh[ , plotHistAll(data=ratio, LDClass=LDClass, jexFolder=jexFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
-     temp2b <- duh[ , plotHistAll(data=logRatio, LDClass=LDClass, jexFolder=jexFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
+     temp2 <- duh[ , plotHistAll(data=ratio, LDClass=LDClass2, jexFolder=jexFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
+     temp2b <- duh[ , plotHistAll(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
 
      indRatioHistograms <- as.vector(temp1$V1)
      indLogRatioHistograms <- as.vector(temp1b$V1)
@@ -163,7 +165,15 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      overallLogRatioHistogram <- as.vector(temp2b)
 
      summaryTable <- data.frame()
-     summaryTable <- duh[ , list(LDRatio_Threshold=sum(LD)/length(LD), LDRatio_Cluster=sum(LDClass)/length(LDClass)), by=.(Array.X,Array.Y,Experiment,Location)]
+     if(locationDimension != '')
+     {
+       summaryTable <- duh[ , list(LDRatio_Threshold=sum(LD)/length(LD), LDRatio_Cluster=length(LDClass2[LDClass2 > 0])/length(LDClass2)), by=c('Array.X','Array.Y','Experiment',locationDimension)]
+     }
+     else
+     {
+       summaryTable <- duh[ , list(LDRatio_Threshold=sum(LD)/length(LD), LDRatio_Cluster=length(LDClass2[LDClass2 > 0])/length(LDClass2)), by=c('Array.X','Array.Y','Experiment')]
+     }
+     
      path1 <- file.path(jexFolder,'SummaryTable.csv')
      write.csv(x=summaryTable,file=path1)
      path2 <- file.path(jexFolder,'SingleCellTable.csv')
