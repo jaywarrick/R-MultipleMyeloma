@@ -90,14 +90,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      {
           set.seed(rndSeed)
           yo <- data[!is.na(data)]
-          if(length(yo) > 10000)
-          {
-               x <- data.frame(x=sample(yo, 10000))
-          }
-          else
-          {
-               x <- data.frame(x=yo)
-          }
+          x <- data.frame(x=yo)
 
 
           emobj <- simple.init(x, nclass = nClusters)
