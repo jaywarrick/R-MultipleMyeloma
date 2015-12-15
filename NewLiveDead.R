@@ -143,6 +143,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      # Attempt EM Clustering to determine live / dead
      results <- assignToClusters(duh$logRatio, nClusters=nClusters, rndSeed=seed)
      duh$LDClass <- results$data$LDClass
+     duh$LDClass2 <- results$data$LDClass2
 
      # Plot the data by array location and
      duh <- data.table(duh)
