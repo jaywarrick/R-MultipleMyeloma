@@ -99,7 +99,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
                      EM.iter = 100, EM.eps = 1e-3, exhaust.iter = 5)
           ret <- emcluster(x, emobj, assign.class = TRUE, EMC=control)
 
-          temp <- data.frame(x=x$x, LDClass=ret$class)
+          temp <- data.frame(x=x$x, LDClass=as.numeric(as.character(ret$class)))
           tempMu <- data.frame(mu=as.vector(ret$Mu), LDClass=1:nrow(ret$Mu))
           tempMu <- tempMu[order(tempMu$mu),]
           temp2 <- temp
@@ -114,18 +114,19 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 
           temp$LDClass3 <- max(temp$LDClass)[1]
           temp$LDClass2 <- temp$LDClass3
+          
           thresh <- list()
           for(i in (nrow(tempMu)-1):1)
           {
-               tempThresh <- min(temp[temp$LDClass == i & temp$x > tempMu$mu[i-1],'x'])
-               if(!length(tempThresh)==0)
+               tempThresh <- min(temp[temp$LDClass == i & temp$x > tempMu2$mu[i-1],'x'])
+               if(!length(tempThresh)==0 && !is.infinite(tempThresh[1]))
                {
                     thresh[[i]] <- tempThresh[1]
                     temp$LDClass2[temp$x < tempThresh] <- i-1
                }
           }
 
-          return(list(data=temp, mu=tempMu$mu, thresh=thresh, emclusterObj=ret))
+          return(list(data=temp, mu=tempMu2$mu, thresh=thresh, emclusterObj=ret))
      }
 
      # Read in the file
