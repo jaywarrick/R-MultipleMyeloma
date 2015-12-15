@@ -112,7 +112,8 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 
           temp$LDClass <- temp$LDClass-1
 
-          temp$LDClass2 <- max(temp$LDClass)[1]
+          temp$LDClass3 <- max(temp$LDClass)[1]
+          temp$LDClass2 <- temp$LDClass3
           thresh <- list()
           for(i in (nrow(tempMu)-1):1)
           {
