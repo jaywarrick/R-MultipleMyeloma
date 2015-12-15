@@ -116,9 +116,9 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
           temp$LDClass2 <- temp$LDClass3
           
           thresh <- list()
-          for(i in (nrow(tempMu)-1):1)
+          for(i in (nrow(tempMu2)-1):1)
           {
-               tempThresh <- min(temp[temp$LDClass == i & temp$x > tempMu2$mu[i-1],'x'])
+               tempThresh <- min(temp[temp$LDClass == i & temp$x > tempMu2$mu[i],'x'])
                if(!length(tempThresh)==0 && !is.infinite(tempThresh[1]))
                {
                     thresh[[i]] <- tempThresh[1]
