@@ -157,7 +157,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
      else
      {
           temp1 <- duh[ , plotHist(data=ratio, LDClass=LDClass2, jexFolder=jexFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, LDClass=LDClass, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
+          temp1b <- duh[ , plotHist(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
      }
      temp2 <- duh[ , plotHistAll(data=ratio, LDClass=LDClass2, jexFolder=jexFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
      temp2b <- duh[ , plotHistAll(data=logRatio, LDClass=LDClass2, jexFolder=jexFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
