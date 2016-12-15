@@ -1,7 +1,7 @@
 rm(list=ls())
 library(foreign)
 library(data.table)
-source('D:/GitHub/R-General/.Rprofile')
+source('/Users/jaywarrick/Public/DropBox/GitHub/R-General/.Rprofile')
 
 # getTable <- function(ds, x, y, name)
 # {
@@ -18,7 +18,7 @@ source('D:/GitHub/R-General/.Rprofile')
 # 	temp <- as.data.table(lapply(temp, function(temp){as.numeric(as.character(temp))})) # Make all columns numeric
 # 	return(temp)
 # }
-# 
+#
 # getTables <- function(DSs, Xs, Ys, name, ...)
 # {
 # 	dtList <- list()
@@ -41,17 +41,17 @@ source('D:/GitHub/R-General/.Rprofile')
 # 	}
 # 	ret <- rbindlist(dtList, use.names=T, ...)
 # }
-# 
+#
 # # Get the cell information
 # x <- getTables(DSs=c('20160913','20160916'), Xs=0:3, Ys=0:1, name='Data Table')
 # fwrite(x, file.path = 'Y:/Jay/JEXDatabases/R Analysis/RC3 20161004/x_TME.csv')
-x <- fread('Y:/Jay/JEXDatabases/R Analysis/RC3 20161004/x_TME.csv')
+x <- fread('/Volumes/Seagate Backup Plus Drive/Materials for BMES/R Analysis/RC3 20161004/x_TME.csv')
 
 # # Get the microwell maps information
 # maps <- getTables(DSs=c('20160913','20160916'), Xs=0:3, Ys=0:1, name='Microwell Map')
 # setnames(maps, c('Point','Region'), c('Region_16','Region_0')) # Point represents the region number at time 16hr while Region represents the region number at time 0 hr.
 # fwrite(y, file.path = 'Y:/Jay/JEXDatabases/R Analysis/RC3 20161004/y_TME.csv')
-y <- fread('Y:/Jay/JEXDatabases/R Analysis/RC3 20161004/y_TME.csv')
+y <- fread('/Volumes/Seagate Backup Plus Drive/Materials for BMES/R Analysis/RC3 20161004/y_TME.csv')
 
 setorder(x, ArrayY, ArrayX, Loc, Region, Point, Time)
 setorder(y, ArrayY, ArrayX, Loc, ROI, Time)
@@ -114,7 +114,7 @@ props <- props[order(Type)]
 propTestResults <- as.data.frame(pairwise.prop.test(props$x, props$n, p.adjust.method = 'none')[[3]])
 propTestResults <- cbind(data.frame(Type=props$Type[-1]), propTestResults)
 names(propTestResults) <- c('Type', props$Type[-length(props$Type)])
-fwrite(propTestResults, file.path='Y:/Jay/JEXDatabases/R Analysis/RC3 20161004/propTestResults_TME.csv')
+fwrite(propTestResults, file.path='/Volumes/Seagate Backup Plus Drive/Materials for BMES/R Analysis/RC3 20161004/propTestResults_TME.csv')
 
 getSign <- function(m1, m2)
 {
@@ -140,7 +140,7 @@ summarize <- function(dt, p1, p2, note)
 	{
 		return(NULL)
 	}
-	ret <- dt[Type %in% c(p1, p2), list(p1=p1, p2=p2, p1x=x[Type==p1], p1n=n[Type==p1], p2x=x[Type==p2], p2n=n[Type==p2], p1Mean=mean[Type==p1], p2Mean=mean[Type==p2], change=getSign(dt$mean[dt$Type==p1], dt$mean[dt$Type==p2]), p.value=prop.test(x=c(x[Type==p1], x[Type==p2]), n=c(n[Type==p1], n[Type==p2]))[['p.value']])]
+	ret <- dt[Type %in% c(p1, p2), list(p1=p1, p2=p2, p1x=x[Type==p1], p1n=n[Type==p1], p2x=x[Type==p2], p2n=n[Type==p2], p1Mean=mean[Type==p1], p2Mean=mean[Type==p2], change=getSign(mean[Type==p1], mean[Type==p2]), p.value=prop.test(x=c(x[Type==p1], x[Type==p2]), n=c(n[Type==p1], n[Type==p2]))[['p.value']])]
 	ret$sig <- ''
 	ret[p.value <= 0.05, sig:='*']
 	ret[p.value <= 0.01, sig:='**']
@@ -162,61 +162,61 @@ summarizeAll <- function(dt, thingsToTest)
 	ret <- rbindlist(dtList, use.names=T)
 }
 
-thingsToTest <- data.frame(                    p1='Tot.1_BCult.1_Tx.0_MCult.1', p2='Tot.1_BCult.1_Tx.1_MCult.1', note = 'Drug effect in MonoBullsEye on 1 MM cells')
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.2_BCult.1_Tx.0_MCult.1', p2='Tot.2_BCult.1_Tx.1_MCult.1', note = 'Drug effect in MonoBullsEye on 2 MM cells'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.1_Tx.0_MCult.1', p2='Tot.3_BCult.1_Tx.1_MCult.1', note = 'Drug effect in MonoBullsEye on 3 MM cells'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.1_Tx.0_MCult.1', p2='Tot.4_BCult.1_Tx.1_MCult.1', note = 'Drug effect in MonoBullsEye on 4 MM cells'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.1_Tx.0_MCult.1', p2='Tot.5_BCult.1_Tx.1_MCult.1', note = 'Drug effect in MonoBullsEye on 5 MM cells'))
+# Special Test
+p1 <- 'Tot.3_BCult.2_Tx.0_MCult.2'
+p2 <- 'Tot.3_BCult.2_Tx.1_MCult.2'
+temp <- x2[,list(x=sum(LiveMM_16), n=.N*.BY$LiveMM_0), by=c('Type', 'LiveMM_0')]
+temp <- temp[order(Type)]
+p1 <- temp[Type == 'Tot.3_BCult.2_Tx.1_MCult.2' & LiveMM_0 == 2]
+p2 <- temp[Type == 'Tot.3_BCult.2_Tx.1_MCult.2' & LiveMM_0 == 1]
+prop.test(x=c(p1$x, p2$x), n=c(p1$n, p2$n))
+
+thingsToTest <- data.frame(                    p1='Tot.1_BCult.1_Tx.0_MCult.1', p2='Tot.1_BCult.1_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromMono')
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.2_BCult.1_Tx.0_MCult.1', p2='Tot.2_BCult.1_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromMono'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.1_Tx.0_MCult.1', p2='Tot.3_BCult.1_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromMono'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.1_Tx.0_MCult.1', p2='Tot.4_BCult.1_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromMono'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.1_Tx.0_MCult.1', p2='Tot.5_BCult.1_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromMono'))
 thingsToTest$p1 <- as.character(thingsToTest$p1)
 thingsToTest$p2 <- as.character(thingsToTest$p2)
-MonoDrugEffect <- summarizeAll(props, thingsToTest)
-MonoDrugEffect
+TxVsCtrl_MonoFromMono <- summarizeAll(props, thingsToTest)
+TxVsCtrl_MonoFromMono
 
-thingsToTest <- data.frame(                    p1='Tot.2_BCult.2_Tx.1_MCult.1', p2='Tot.2_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 2 cells in CoBullsEye.')
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.1_MCult.1', p2='Tot.3_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 3 cells in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.1_MCult.1', p2='Tot.4_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 4 cells in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.1_MCult.1', p2='Tot.5_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 5 cells in CoBullsEye.'))
+thingsToTest <- data.frame(                    p1='Tot.1_BCult.2_Tx.0_MCult.1', p2='Tot.1_BCult.2_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromCo')
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.2_BCult.2_Tx.0_MCult.1', p2='Tot.2_BCult.2_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromCo'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.0_MCult.1', p2='Tot.3_BCult.2_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromCo'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.0_MCult.1', p2='Tot.4_BCult.2_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromCo'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.0_MCult.1', p2='Tot.5_BCult.2_Tx.1_MCult.1', note = 'TxVsCtrl_MonoFromCo'))
 thingsToTest$p1 <- as.character(thingsToTest$p1)
 thingsToTest$p2 <- as.character(thingsToTest$p2)
-MonoVsCoDrugEffect <- summarizeAll(props, thingsToTest)
-MonoVsCoDrugEffect
+TxVsCtrl_MonoFromCo <- summarizeAll(props, thingsToTest)
+TxVsCtrl_MonoFromCo
 
-thingsToTest <- data.frame(                    p1='Tot.2_BCult.1_Tx.1_MCult.1', p2='Tot.2_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 2 cells in CoBullsEye.')
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.1_Tx.1_MCult.1', p2='Tot.3_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 3 cells in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.1_Tx.1_MCult.1', p2='Tot.4_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 4 cells in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.1_Tx.1_MCult.1', p2='Tot.5_BCult.2_Tx.1_MCult.2', note = 'Co-Culture effect on Drug Sensitivity of 5 cells in CoBullsEye.'))
+thingsToTest <- data.frame(                    p1='Tot.2_BCult.2_Tx.0_MCult.2', p2='Tot.2_BCult.2_Tx.1_MCult.2', note = 'TxVsCtrl_CoFromCo')
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.0_MCult.2', p2='Tot.3_BCult.2_Tx.1_MCult.2', note = 'TxVsCtrl_CoFromCo'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.0_MCult.2', p2='Tot.4_BCult.2_Tx.1_MCult.2', note = 'TxVsCtrl_CoFromCo'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.0_MCult.2', p2='Tot.5_BCult.2_Tx.1_MCult.2', note = 'TxVsCtrl_CoFromCo'))
 thingsToTest$p1 <- as.character(thingsToTest$p1)
 thingsToTest$p2 <- as.character(thingsToTest$p2)
-MonoVsCoDrugEffect2 <- summarizeAll(props, thingsToTest)
-MonoVsCoDrugEffect2
+TxVsCtrl_CoFromCo <- summarizeAll(props, thingsToTest)
+TxVsCtrl_CoFromCo
 
-thingsToTest <- data.frame(                    p1='Tot.2_BCult.2_Tx.0_MCult.1', p2='Tot.2_BCult.2_Tx.0_MCult.2', note = 'Co-Culture effect on Viability of 2 cells in CoBullsEye.')
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.0_MCult.1', p2='Tot.3_BCult.2_Tx.0_MCult.2', note = 'Co-Culture effect on Viability of 3 cell in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.0_MCult.1', p2='Tot.4_BCult.2_Tx.0_MCult.2', note = 'Co-Culture effect on Viability of 4 cell in CoBullsEye.'))
-thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.0_MCult.1', p2='Tot.5_BCult.2_Tx.0_MCult.2', note = 'Co-Culture effect on Viability of 5 cell in CoBullsEye.'))
+thingsToTest <- data.frame(                    p1='Tot.2_BCult.2_Tx.1_MCult.1', p2='Tot.2_BCult.2_Tx.1_MCult.2', note = 'MonoVsCo_Treated')
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.1_MCult.1', p2='Tot.3_BCult.2_Tx.1_MCult.2', note = 'MonoVsCo_Treated'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.1_MCult.1', p2='Tot.4_BCult.2_Tx.1_MCult.2', note = 'MonoVsCo_Treated'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.1_MCult.1', p2='Tot.5_BCult.2_Tx.1_MCult.2', note = 'MonoVsCo_Treated'))
 thingsToTest$p1 <- as.character(thingsToTest$p1)
 thingsToTest$p2 <- as.character(thingsToTest$p2)
-MonoVsCoViability <- summarizeAll(props, thingsToTest)
-MonoVsCoViability
+MonoVsCo_Treated <- summarizeAll(props, thingsToTest)
+MonoVsCo_Treated
 
+thingsToTest <- data.frame(                    p1='Tot.2_BCult.2_Tx.0_MCult.1', p2='Tot.2_BCult.2_Tx.0_MCult.2', note = 'MonoVsCo_Control')
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.3_BCult.2_Tx.0_MCult.1', p2='Tot.3_BCult.2_Tx.0_MCult.2', note = 'MonoVsCo_Control'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.4_BCult.2_Tx.0_MCult.1', p2='Tot.4_BCult.2_Tx.0_MCult.2', note = 'MonoVsCo_Control'))
+thingsToTest <- rbind(thingsToTest, data.frame(p1='Tot.5_BCult.2_Tx.0_MCult.1', p2='Tot.5_BCult.2_Tx.0_MCult.2', note = 'MonoVsCo_Control'))
+thingsToTest$p1 <- as.character(thingsToTest$p1)
+thingsToTest$p2 <- as.character(thingsToTest$p2)
+MonoVsCo_Control <- summarizeAll(props, thingsToTest)
+MonoVsCo_Control
 
-# # Replace any new NAs with 0
-# x4 <- reorganize(x3, idCols=c('Loc','Region'), measurementCols=c('Time'), valueCols=c('Tot','LiveMM'))
-# x4$Culture <- 1 + as.numeric(x4$LiveMM_0 < x4$Tot_0) # 1 = Mono 2 = co-culture
-# # Remove any times where the initial total number of cells was 0.
-# 
-# 
-# # for(colname in names(x2))
-# # {
-# # 	print(colname)
-# # 	hist(x2[[colname]], breaks=40, main=colname)
-# # }
-# # lapply(x2, min)
-# # lapply(x2, hist, breaks=40, add=F)
-# 
-# # hist(x2[Time==0]$LR, breaks=40, xlim=c(-8,6))
-# # hist(x2[Time==16]$LR, breaks=40, xlim=c(-8,6))
-# # hist(log(x2[Time==0]$Cyt),breaks=40)
-# # hist(log(x2[Time==16]$Cyt), breaks=40)
-# 
-# x <- reorganize(data=x, measurementCols=c('Measurement','Time'), valueCols='Value')
+CompiledTable <- rbindlist(list(TxVsCtrl_MonoFromMono=TxVsCtrl_MonoFromMono, TxVsCtrl_MonoFromCo=TxVsCtrl_MonoFromCo, TxVsCtrl_CoFromCo=TxVsCtrl_CoFromCo, MonoVsCo_Treated=MonoVsCo_Treated, MonoVsCo_Control=MonoVsCo_Control))
+write.csv(x=CompiledTable, file='/Volumes/Seagate Backup Plus Drive/Materials for BMES/R Analysis/RC3 20161004/CompiledTable_TME.csv')
