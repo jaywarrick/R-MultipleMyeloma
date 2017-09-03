@@ -331,6 +331,16 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 		return(list(data=temp2, mu=tempMu2$mu, thresh=thresh, emclusterObj=ret, pi=pi))
 	}
 
+	# Check if Acol and Bcol exist in the data.table
+	if(!(Acol %in% names(duh)))
+	{
+		stop(paste0('The A column, ', Acol, ', does not exist. Please provide a valid A column name. Names available are, ', names(duh), '. Aborting.'))
+	}
+	if(!(Bcol %in% names(duh)))
+	{
+		stop(paste0('The B column, ', Bcol, ', does not exist. Please provide a valid B column name. Names available are, ', names(duh), '. Aborting.'))
+	}
+
 	# Read in the file
 	duh <- fread(compiledTablePath, header=T)
 	# duh <- reorganize(duh, specialNames=c(), convertToNumeric=FALSE)
