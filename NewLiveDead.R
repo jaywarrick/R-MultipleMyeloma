@@ -339,11 +339,11 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	# Check if Acol and Bcol exist in the data.table
 	if(!(Acol %in% names(duh)))
 	{
-		stop(paste0('The A column, ', Acol, ', does not exist. Please provide a valid A column name. Names available are, ', names(duh), '. Aborting.'))
+		stop(paste0('The A column, ', Acol, ', does not exist. Please provide a valid A column name. Names available are, ', paste0(names(duh), collapse=' '), '. Aborting.'))
 	}
 	if(!(Bcol %in% names(duh)))
 	{
-		stop(paste0('The B column, ', Bcol, ', does not exist. Please provide a valid B column name. Names available are, ', names(duh), '. Aborting.'))
+		stop(paste0('The B column, ', Bcol, ', does not exist. Please provide a valid B column name. Names available are, ', paste0(names(duh), collapse=' '), '. Aborting.'))
 	}
 
 	# Check to see if the offset if sufficient?
