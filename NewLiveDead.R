@@ -331,6 +331,11 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 		return(list(data=temp2, mu=tempMu2$mu, thresh=thresh, emclusterObj=ret, pi=pi))
 	}
 
+	# Read in the file
+	duh <- fread(compiledTablePath, header=T)
+	# duh <- reorganize(duh, specialNames=c(), convertToNumeric=FALSE)
+	duh <- data.frame(duh)
+
 	# Check if Acol and Bcol exist in the data.table
 	if(!(Acol %in% names(duh)))
 	{
@@ -340,11 +345,6 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	{
 		stop(paste0('The B column, ', Bcol, ', does not exist. Please provide a valid B column name. Names available are, ', names(duh), '. Aborting.'))
 	}
-
-	# Read in the file
-	duh <- fread(compiledTablePath, header=T)
-	# duh <- reorganize(duh, specialNames=c(), convertToNumeric=FALSE)
-	duh <- data.frame(duh)
 
 	# Check to see if the offset if sufficient?
 	Amin <- min(duh[[Acol]], na.rm=T)
