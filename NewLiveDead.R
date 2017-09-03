@@ -186,13 +186,13 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
 }
 
-analyzeRatio <- function(compiledTablePath, ouputFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location', Acol, Bcol, offset=NULL)
+analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location', Acol, Bcol, offset=NULL)
 {
 
 	# Define some helper functions
-	plotHist <- function(data, cluster, thresh, ouputFolder, x, y, loc, prefix)
+	plotHist <- function(data, cluster, thresh, outputFolder, x, y, loc, prefix)
 	{
-		imagePath <- file.path(ouputFolder,paste0(prefix, x, '_', y, '_', loc, '.tif'))
+		imagePath <- file.path(outputFolder,paste0(prefix, x, '_', y, '_', loc, '.tif'))
 		tiff(filename=imagePath)
 		add <- FALSE
 		col <- list(red=0, green=0, blue=0, alpha=0.5)
@@ -223,9 +223,9 @@ analyzeRatio <- function(compiledTablePath, ouputFolder, logRatioThreshold=0, nC
 		return(imagePath)
 	}
 
-	plotHistAll <- function(data, cluster, thresh, ouputFolder, isLog, prefix)
+	plotHistAll <- function(data, cluster, thresh, outputFolder, isLog, prefix)
 	{
-		imagePath <- file.path(ouputFolder,paste0(prefix, '.tif'))
+		imagePath <- file.path(outputFolder,paste0(prefix, '.tif'))
 		tiff(filename=imagePath)
 		if(isLog)
 		{
@@ -387,16 +387,16 @@ analyzeRatio <- function(compiledTablePath, ouputFolder, logRatioThreshold=0, nC
 	duh <- data.table(duh)
 	if(locationDimension != '')
 	{
-		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
-		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
+		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
+		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
 	}
 	else
 	{
-		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
+		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
+		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
 	}
-	temp2 <- duh[ , plotHistAll(data=ratio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
-	temp2b <- duh[ , plotHistAll(data=logRatio, cluster=cluster.class, ouputFolder=ouputFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
+	temp2 <- duh[ , plotHistAll(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
+	temp2b <- duh[ , plotHistAll(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
 
 	indRatioHistograms <- as.vector(temp1$V1)
 	indLogRatioHistograms <- as.vector(temp1b$V1)
@@ -413,9 +413,9 @@ analyzeRatio <- function(compiledTablePath, ouputFolder, logRatioThreshold=0, nC
 		summaryTable <- duh[ , list(LDRatio_Threshold=sum(thresh.class)/length(thresh.class), LDRatio_Cluster=length(cluster.class[cluster.class > 0])/length(cluster.class)), by=c('Array.X','Array.Y','Experiment')]
 	}
 
-	path1 <- file.path(ouputFolder,'SummaryTable.csv')
+	path1 <- file.path(outputFolder,'SummaryTable.csv')
 	write.csv(x=summaryTable,file=path1)
-	path2 <- file.path(ouputFolder,'SingleCellTable.csv')
+	path2 <- file.path(outputFolder,'SingleCellTable.csv')
 	write.csv(x=duh,file=path2)
 	summaryTable <- c(path1)
 	singleCellTable <- c(path2)
