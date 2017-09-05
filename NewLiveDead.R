@@ -178,9 +178,9 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 	}
 
 	path1 <- file.path(jexFolder,'SummaryTable.csv')
-	write.csv(x=summaryTable,file=path1)
+	write.csv(x=summaryTable,file=path1,row.names=F)
 	path2 <- file.path(jexFolder,'SingleCellTable.csv')
-	write.csv(x=duh,file=path2)
+	write.csv(x=duh,file=path2,row.names=F)
 	summaryTable <- c(path1)
 	singleCellTable <- c(path2)
 	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
@@ -426,11 +426,11 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	summaryTable.manual[, fraction := subtot/tot]
 
 	path1 <- file.path(outputFolder,'SummaryTable.Cluster.csv')
-	write.csv(x=summaryTable.cluster,file=path1)
+	write.csv(x=summaryTable.cluster,file=path1,row.names=F)
 	path2 <- file.path(outputFolder,'SummaryTable.Manual.csv')
-	write.csv(x=summaryTable.manual,file=path2)
+	write.csv(x=summaryTable.manual,file=path2,row.names=F)
 	path3 <- file.path(outputFolder,'SingleCellTable.csv')
-	write.csv(x=duh,file=path3)
+	write.csv(x=duh,file=path3,row.names=F)
 	summaryTable.cluster <- c(path1)
 	summaryTable.manual <- c(path2)
 	singleCellTable <- c(path2)
