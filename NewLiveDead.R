@@ -414,22 +414,40 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	overallLogRatioHistogram <- as.vector(temp2b)
 
 	summaryTable <- data.frame()
+
+	# Write a function that returns percentages for each subpopulation
+
 	if(locationDimension != '')
 	{
-		summaryTable <- duh[ , list(Ratio_Threshold=sum(thresh.class)/length(thresh.class), LDRatio_Cluster=length(cluster.class[cluster.class > 0])/length(cluster.class)), by=c('Array.X','Array.Y','Experiment',locationDimension)]
+		summaryTable <- duh[ , list(Ratio_Threshold=sum(thresh.class)/length(thresh.class), Ratio_Cluster=length(cluster.class[cluster.class > 0])/length(cluster.class)), by=c('Array.X','Array.Y','Experiment',locationDimension)]
 	}
 	else
 	{
-		summaryTable <- duh[ , list(LDRatio_Threshold=sum(thresh.class)/length(thresh.class), LDRatio_Cluster=length(cluster.class[cluster.class > 0])/length(cluster.class)), by=c('Array.X','Array.Y','Experiment')]
+		summaryTable.cluster <- duh[, {
+			tot = .N
+			.SD[, .(tot, subtot=.N), by='cluster.class']
+			} , by=c('Array.X','Array.Y','Experiment')]
+		setorder(summaryTable.cluster, Experiment, Array.X, Array.Y, cluster.class)
+		summaryTable.cluster[, fraction := subtot/tot]
+
+		summaryTable.manual <- duh[, {
+			tot = .N
+			.SD[, .(tot, subtot=.N), by='thresh.class']
+		} , by=c('Array.X','Array.Y','Experiment')]
+		setorder(summaryTable.manual, Experiment, Array.X, Array.Y, thresh.class)
+		summaryTable.manual[, fraction := subtot/tot]
 	}
 
-	path1 <- file.path(outputFolder,'SummaryTable.csv')
+	path1 <- file.path(outputFolder,'SummaryTable.Cluster.csv')
 	write.csv(x=summaryTable,file=path1)
-	path2 <- file.path(outputFolder,'SingleCellTable.csv')
-	write.csv(x=duh,file=path2)
-	summaryTable <- c(path1)
+	path2 <- file.path(outputFolder,'SummaryTable.Manual.csv')
+	write.csv(x=summaryTable,file=path2)
+	path3 <- file.path(outputFolder,'SingleCellTable.csv')
+	write.csv(x=duh,file=path3)
+	summaryTable.cluster <- c(path1)
+	summaryTable.manual <- c(path2)
 	singleCellTable <- c(path2)
-	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
+	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable.cluster=summaryTable.cluster, summaryTable.manual=summaryTable.manual, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
 }
 
 # something potentially good to know for this file blah<-'b', blah2<-'a', temp[,mean(unlist(.SD[,'a',with=FALSE])),by=c(blah)]
