@@ -425,14 +425,16 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	{
 		summaryTable.cluster <- duh[, {
 			tot = .N
-			.SD[, .(tot, subtot=.N), by='cluster.class']
+			mu = mean(logRatio, na.rm=T)
+			.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='cluster.class']
 			} , by=c('Array.X','Array.Y','Experiment')]
 		setorder(summaryTable.cluster, Experiment, Array.X, Array.Y, cluster.class)
 		summaryTable.cluster[, fraction := subtot/tot]
 
 		summaryTable.manual <- duh[, {
 			tot = .N
-			.SD[, .(tot, subtot=.N), by='thresh.class']
+			mu = mean(logRatio, na.rm=T)
+			.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='thresh.class']
 		} , by=c('Array.X','Array.Y','Experiment')]
 		setorder(summaryTable.manual, Experiment, Array.X, Array.Y, thresh.class)
 		summaryTable.manual[, fraction := subtot/tot]
