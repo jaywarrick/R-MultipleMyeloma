@@ -3,7 +3,7 @@ library('foreign')
 library('data.table')
 library('EMCluster')
 
-analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location')
+analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, nClusters=2, seed=543, by=c('Experiment','Array.X','Array.Y'))
 {
 	# Define some helper functions
 	plotHist <- function(data, LDClass, thresh, jexFolder, x, y, loc, prefix)
@@ -186,13 +186,13 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
 }
 
-analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location', Acol, Bcol, offset=NULL)
+analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location', Acol, Bcol, offset=NULL, by=c('Experiment','Array.X','Array.Y'))
 {
 
 	# Define some helper functions
-	plotHist <- function(data, cluster, thresh, outputFolder, x, y, loc, prefix)
+	plotHist <- function(data, cluster, thresh, outputFolder, by, by.values, prefix)
 	{
-		imagePath <- file.path(outputFolder,paste0(prefix, x, '_', y, '_', loc, '.tif'))
+		imagePath <- file.path(outputFolder,paste0(prefix, '_', paste0(by, '.', by.values, collapse='_'), '.tif'))
 		tiff(filename=imagePath)
 		add <- FALSE
 		col <- list(red=0, green=0, blue=0, alpha=0.5)
@@ -209,11 +209,11 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 				if(add)
 				{
 					rData <- range(data)
-					hist(data[cluster==i], breaks=myBreaks, main=paste0('X:', x, ' Y:', y, ' Loc:', loc), col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
+					hist(data[cluster==i], breaks=myBreaks, main=paste0(by, '.', by.values, collapse='_'), col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
 				}
 				else
 				{
-					hist(data[cluster==i], breaks=myBreaks, main=paste0('X:', x, ' Y:', y, ' Loc:', loc), col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
+					hist(data[cluster==i], breaks=myBreaks, main=paste0(by, '.', by.values, collapse='_'), col=freshCol, add=add, freq=TRUE, ylim=c(0,myLim))
 				}
 				add <- TRUE
 			}
@@ -395,16 +395,9 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 
 	# Plot the data by array location and
 	duh <- data.table(duh)
-	if(locationDimension != '')
-	{
-		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
-		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc=.BY[[4]], prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment', locationDimension)]
-	}
-	else
-	{
-		temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), x=Array.X[1], y=Array.Y[1], loc='', prefix='hist1_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-		temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, x=Array.X[1], y=Array.Y[1], loc='', prefix='hist2_'), by=c('Array.X', 'Array.Y', 'Experiment')]
-	}
+	temp1 <- duh[ , plotHist(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), by=by, by.values=.BY, prefix='hist1_'), by=by]
+	temp1b <- duh[ , plotHist(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, by=by, by.values=.BY, prefix='hist2_'), by=by]
+
 	temp2 <- duh[ , plotHistAll(data=ratio, cluster=cluster.class, outputFolder=outputFolder, thresh=exp(logRatioThreshold), isLog=FALSE, prefix='hist1_All'), ]
 	temp2b <- duh[ , plotHistAll(data=logRatio, cluster=cluster.class, outputFolder=outputFolder, thresh=logRatioThreshold, isLog=TRUE, prefix='hist2_All'), ]
 
@@ -417,28 +410,21 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 
 	# Write a function that returns percentages for each subpopulation
 
-	if(locationDimension != '')
-	{
-		summaryTable <- duh[ , list(Ratio_Threshold=sum(thresh.class)/length(thresh.class), Ratio_Cluster=length(cluster.class[cluster.class > 0])/length(cluster.class)), by=c('Array.X','Array.Y','Experiment',locationDimension)]
-	}
-	else
-	{
-		summaryTable.cluster <- duh[, {
-			tot = .N
-			mu = mean(logRatio, na.rm=T)
-			.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='cluster.class']
-			} , by=c('Array.X','Array.Y','Experiment')]
-		setorder(summaryTable.cluster, Experiment, Array.X, Array.Y, cluster.class)
-		summaryTable.cluster[, fraction := subtot/tot]
+	summaryTable.cluster <- duh[, {
+		tot = .N
+		mu = mean(logRatio, na.rm=T)
+		.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='cluster.class']
+	} , by=by]
+	setorderv(summaryTable.cluster, c(by, 'cluster.class'))
+	summaryTable.cluster[, fraction := subtot/tot]
 
-		summaryTable.manual <- duh[, {
-			tot = .N
-			mu = mean(logRatio, na.rm=T)
-			.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='thresh.class']
-		} , by=c('Array.X','Array.Y','Experiment')]
-		setorder(summaryTable.manual, Experiment, Array.X, Array.Y, thresh.class)
-		summaryTable.manual[, fraction := subtot/tot]
-	}
+	summaryTable.manual <- duh[, {
+		tot = .N
+		mu = mean(logRatio, na.rm=T)
+		.SD[, .(mu, submu=mean(logRatio, na.rm=T), tot, subtot=.N), by='thresh.class']
+	} , by=by]
+	setorderv(summaryTable.manual, c(by, 'thresh.class'))
+	summaryTable.manual[, fraction := subtot/tot]
 
 	path1 <- file.path(outputFolder,'SummaryTable.Cluster.csv')
 	write.csv(x=summaryTable.cluster,file=path1)
