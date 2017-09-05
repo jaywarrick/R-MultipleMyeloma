@@ -186,7 +186,7 @@ analyzeLiveDead <- function(compiledTablePath, jexFolder, logRatioThreshold=0, n
 	return(list(indRatioHistograms=indRatioHistograms, indLogRatioHistograms=indLogRatioHistograms, overallRatioHistogram=overallRatioHistogram, overallLogRatioHistogram=overallLogRatioHistogram, summaryTable=summaryTable, singleCellTable=singleCellTable, updatedTable=duh, clusterResults=results))
 }
 
-analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, nClusters=2, seed=543, locationDimension='Location', Acol, Bcol, offset=NULL, by=c('Experiment','Array.X','Array.Y'))
+analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, nClusters=2, seed=543, Acol, Bcol, by=c('Experiment','Array.X','Array.Y'))
 {
 
 	# Define some helper functions
@@ -346,13 +346,12 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 		stop(paste0('The B column, ', Bcol, ', does not exist. Please provide a valid B column name. Names available are, ', paste0(names(duh), collapse=' '), '. Aborting.'))
 	}
 
-	# Check to see if the offset if sufficient?
+	# Check to see if an offset is needed
 	Amin <- min(duh[[Acol]], na.rm=T)
 	Amin.pos <- min(duh[[Acol]][duh[[Acol]] > 0])
 	Bmin <- min(duh[[Bcol]], na.rm=T)
 	Bmin.pos <- min(duh[[Bcol]][duh[[Bcol]] > 0])
 	the.min <- min(c(Amin,Bmin), na.rm=T)
-
 	offsetA <- 0
 	if(Amin < 0)
 	{
