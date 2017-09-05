@@ -439,9 +439,9 @@ analyzeRatio <- function(compiledTablePath, outputFolder, logRatioThreshold=0, n
 	}
 
 	path1 <- file.path(outputFolder,'SummaryTable.Cluster.csv')
-	write.csv(x=summaryTable,file=path1)
+	write.csv(x=summaryTable.cluster,file=path1)
 	path2 <- file.path(outputFolder,'SummaryTable.Manual.csv')
-	write.csv(x=summaryTable,file=path2)
+	write.csv(x=summaryTable.manual,file=path2)
 	path3 <- file.path(outputFolder,'SingleCellTable.csv')
 	write.csv(x=duh,file=path3)
 	summaryTable.cluster <- c(path1)
